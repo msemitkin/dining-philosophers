@@ -34,7 +34,7 @@ class Philosopher extends Thread {
 
     private void think() throws InterruptedException {
         System.out.println("Philosopher " + identity + " is thinking");
-        sleep(500 * (int) (100 * Math.random()));
+        sleep((int) (1000 * Math.random()));
     }
 
     private void hungry() {
@@ -63,7 +63,7 @@ class Philosopher extends Thread {
 
     private void eat() throws InterruptedException {
         System.out.println("Philosopher " + identity + " is eating");
-        sleep((int) (500 * Math.random()));
+        sleep((int) (1000 * Math.random()));
     }
 
     private void putForks() {
