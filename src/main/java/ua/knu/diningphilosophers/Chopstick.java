@@ -2,8 +2,8 @@ package ua.knu.diningphilosophers;
 
 class Chopstick {
 
-    boolean taken = false;
-    int identity;
+    private boolean taken;
+    private final int identity;
 
     Chopstick(int identity) {
         this.identity = identity;

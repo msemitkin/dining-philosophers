@@ -1,19 +1,25 @@
 package ua.knu.diningphilosophers;
 
-public class Room {
+import java.util.Scanner;
+
+class Room {
     private Philosopher[] philosophers;
     private Chopstick[] chopsticks;
 
-    public Room() {
+    Room() {
         initChopsticks();
         initPhilosophers();
     }
 
     void doActions() {
-        while (true) {
-            for (Philosopher philosopher : philosophers) {
-                philosopher.start();
-            }
+        for (Philosopher philosopher : philosophers) {
+            philosopher.start();
+        }
+
+        new Scanner(System.in).next("exit");
+
+        for (Philosopher philosopher : philosophers) {
+            philosopher.stopRequested();
         }
     }
 

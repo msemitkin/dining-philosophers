@@ -2,8 +2,8 @@ package ua.knu.diningphilosophers;
 
 class Philosopher extends Thread {
 
-    int identity;
-    boolean stopRequested = false;
+    private final int identity;
+    private boolean stopRequested;
     Chopstick left;
     Chopstick right;
 
@@ -14,33 +14,44 @@ class Philosopher extends Thread {
     }
 
     public void run() {
-        while (!stopRequested) {
-            try {
+        try {
+            while (!stopRequested) {
                 System.out.println("Philosopher " + identity + " is thinking");
-                wait();
                 sleep(500 * (int) (100 * Math.random()));
 
                 System.out.println("Philosopher " + identity + " is hungry");
+                performWithinLock(() -> {
+                    try {
+                        right.get();
+                        System.out.println("Philosopher " + identity + " took right fork");
 
-                right.get();
-                System.out.println("Philosopher " + identity + " took right fork");
+                        sleep(500);
 
-                sleep(500);
-
-                left.get();
-                System.out.println("Philosopher " + identity + " took left fork and started eating");
+                        left.get();
+                        System.out.println("Philosopher " + identity + " took left fork");
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                System.out.println("Philosopher " + identity + " is eating");
                 sleep((int) (500 * Math.random()));
-
                 right.put();
                 left.put();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private void performWithinLock(Runnable runnable) {
+        LockProvider.acquire();
+        runnable.run();
+        LockProvider.release();
     }
 
 
     public void stopRequested() {
         stopRequested = true;
+        System.out.println("Philosopher " + identity + " is going to leave the room");
     }
 }
