@@ -22,4 +22,8 @@ class Chopstick {
         taken = true;
         System.out.println("Fork " + identity + " is taken");
     }
+
+    boolean isTaken() {
+        return taken;
+    }
 }

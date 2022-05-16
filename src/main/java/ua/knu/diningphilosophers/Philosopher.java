@@ -23,7 +23,7 @@ class Philosopher extends Thread {
             while (!stopRequested) {
                 think();
                 hungry();
-                performWithinLock(this::takeForks);
+                withRetry(() -> performWithinLock(this::takeForks));
                 eat();
                 putForks();
             }
@@ -41,6 +41,17 @@ class Philosopher extends Thread {
         System.out.println("Philosopher " + identity + " is hungry");
     }
 
+    private void withRetry(Runnable runnable) {
+        boolean tookChopsticks = false;
+        while (!tookChopsticks) {
+            try {
+                runnable.run();
+                tookChopsticks = true;
+            } catch (ChopsticksAreTakenException ignored) {
+            }
+        }
+    }
+
     private void performWithinLock(Runnable runnable) {
         LockProvider.acquire();
         runnable.run();
@@ -49,13 +60,17 @@ class Philosopher extends Thread {
 
     private void takeForks() {
         try {
-            right.take();
-            System.out.println("Philosopher " + identity + " took right fork");
+            if (!right.isTaken() && !left.isTaken()) {
+                right.take();
+                System.out.println("Philosopher " + identity + " took right fork");
 
-            sleep(500);
+                sleep(500);
 
-            left.take();
-            System.out.println("Philosopher " + identity + " took left fork");
+                left.take();
+                System.out.println("Philosopher " + identity + " took left fork");
+            } else {
+                throw new ChopsticksAreTakenException();
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
