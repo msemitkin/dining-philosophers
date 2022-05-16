@@ -13,34 +13,32 @@ class Philosopher extends Thread {
         this.right = right;
     }
 
+    public void stopRequested() {
+        stopRequested = true;
+        System.out.println("Philosopher " + identity + " is going to leave the room");
+    }
+
     public void run() {
         try {
             while (!stopRequested) {
-                System.out.println("Philosopher " + identity + " is thinking");
-                sleep(500 * (int) (100 * Math.random()));
-
-                System.out.println("Philosopher " + identity + " is hungry");
-                performWithinLock(() -> {
-                    try {
-                        right.get();
-                        System.out.println("Philosopher " + identity + " took right fork");
-
-                        sleep(500);
-
-                        left.get();
-                        System.out.println("Philosopher " + identity + " took left fork");
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                System.out.println("Philosopher " + identity + " is eating");
-                sleep((int) (500 * Math.random()));
-                right.put();
-                left.put();
+                think();
+                hungry();
+                performWithinLock(this::takeForks);
+                eat();
+                putForks();
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void think() throws InterruptedException {
+        System.out.println("Philosopher " + identity + " is thinking");
+        sleep(500 * (int) (100 * Math.random()));
+    }
+
+    private void hungry() {
+        System.out.println("Philosopher " + identity + " is hungry");
     }
 
     private void performWithinLock(Runnable runnable) {
@@ -49,9 +47,28 @@ class Philosopher extends Thread {
         LockProvider.release();
     }
 
+    private void takeForks() {
+        try {
+            right.take();
+            System.out.println("Philosopher " + identity + " took right fork");
 
-    public void stopRequested() {
-        stopRequested = true;
-        System.out.println("Philosopher " + identity + " is going to leave the room");
+            sleep(500);
+
+            left.take();
+            System.out.println("Philosopher " + identity + " took left fork");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    private void eat() throws InterruptedException {
+        System.out.println("Philosopher " + identity + " is eating");
+        sleep((int) (500 * Math.random()));
+    }
+
+    private void putForks() {
+        right.put();
+        left.put();
+    }
+
 }

@@ -15,7 +15,7 @@ class Chopstick {
         notify();
     }
 
-    synchronized void get() throws InterruptedException {
+    synchronized void take() throws InterruptedException {
         while (taken) { // if the fork is already taken by another philosopher, we need to wait until it will be put again
             wait();
         }
