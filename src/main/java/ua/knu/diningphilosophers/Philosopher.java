@@ -54,8 +54,11 @@ class Philosopher extends Thread {
 
     private void performWithinLock(Runnable runnable) {
         LockProvider.acquire();
-        runnable.run();
-        LockProvider.release();
+        try{
+            runnable.run();
+        } finally {
+            LockProvider.release();
+        }
     }
 
     private void takeForks() {
