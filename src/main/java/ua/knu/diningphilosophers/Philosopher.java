@@ -3,9 +3,9 @@ package ua.knu.diningphilosophers;
 class Philosopher extends Thread {
 
     private final int identity;
+    private final Chopstick left;
+    private final Chopstick right;
     private boolean stopRequested;
-    Chopstick left;
-    Chopstick right;
 
     Philosopher(int identity, Chopstick left, Chopstick right) {
         this.identity = identity;
@@ -13,7 +13,7 @@ class Philosopher extends Thread {
         this.right = right;
     }
 
-    public void stopRequested() {
+    void stopRequested() {
         stopRequested = true;
         System.out.println("Philosopher " + identity + " is going to leave the room");
     }
